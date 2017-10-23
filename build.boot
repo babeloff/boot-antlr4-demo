@@ -1,12 +1,12 @@
 
 (def project 'babeloff/literate-antlr)
-(def version "2017.10.19-SNAPSHOT")
+(def version "2017.10.20-SNAPSHOT")
 
 (set-env!
     :source-paths #{"src/antlr4" "src/java"}
     :dependencies '[[org.clojure/clojure "1.9.0-beta2"]
                     [boot/core "RELEASE" :scope "test"]
-                    [babeloff/boot-antlr4 "2017.10.19"]
+                    [babeloff/boot-antlr4 "2017.10.20-SNAPSHOT"]
                     [org.antlr/antlr4 "4.7"]
                     [clj-jgit "0.8.10"]
                     [byte-streams "0.2.3"]
@@ -55,6 +55,8 @@
               :input ["src/antlr4/ANTLRv4Lexer.g4"
                       "src/antlr4/ANTLRv4Parser.g4"]
               :tree true
+              :edn true
+              :rdf true
               :postscript true
               :tokens true
               :show true)))
@@ -63,11 +65,11 @@
   []
   (comp (build) (show :fileset true) (exercise) (repl) (store)))
 
-(deftask live
+(deftask dev
   []
   (comp
-    (watch)
     (build)
     (exercise)
-    ;; (show :fileset true)
     (store)))
+
+(deftask live  [] (comp) (watch) (dev))
