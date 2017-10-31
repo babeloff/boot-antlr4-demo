@@ -1,3 +1,4 @@
+
 (ns babeloff.boot-antlr4-parser
   "an antlr task that uses the ANTLRv4 lexers and parsers."
   {:boot/export-tasks true}
@@ -25,14 +26,10 @@
                           CharStreams)
     (clojure.lang Reflector)
     (java.nio.file Paths)
-    (java.nio.charset Charset))
+    (java.nio.charset Charset)))
 
-(defn get-target-path
-  [file-path]
-  (->> (fs/split file-path)
-       (map #(case % ".." "dots" "." "dot" %))))
 
-(deftask parse
+(deftask exercise
   "A task that runs the ANTLR4 parser."
   [r start-rule     LIB_DIR str    "the name of the first rule to match"
    e encoding       STYLE   str    "specify output STYLE for messages in antlr, gnu, vs2005"
@@ -45,51 +42,47 @@
    z postscript             bool   "produce a postscript output of the parse tree"
    x trace                  bool   "show the progress that the parser makes"
    d diagnostics            bool   "show some diagnostics"
-   f sll                    bool   "use the fast SLL prediction mode"])
-(cond
-  (not parser)
-  (do
-    (boot.util/fail "The --parser argument is required")
-    (*usage*))
+   f sll                    bool   "use the fast SLL prediction mode"]
+  (cond
+    (not start-rule)
+    (do
+      (boot.util/fail "The --start-rule argument is required")
+      (*usage*))
 
-  (not start-rule)
-  (do
-    (boot.util/fail "The --start-rule argument is required")
-    (*usage*))
-
-  :else
-  (let [target-dir (boot/tmp-dir!)
+    :else
+    (let [target-dir (boot/tmp-dir!)
           target-dir-str (.getCanonicalPath target-dir)]
-      (fn middleware [next-handler]
-        (fn handler [fileset]
+        (fn middleware [next-handler]
+          (fn handler [fileset]
 
-          (boot/empty-dir! target-dir)
-          (util/info "target: %s\n" target-dir-str)
-          (util/info "parser: %s\n" parser)
-          (util/info "lexer: %s\n" lexer)
-          (util/info "working directory: %s\n"
-            (-> (Paths/get "." (make-array String 0))
-               .toAbsolutePath .normalize .toString))
+            (boot/empty-dir! target-dir)
+            (util/info "target: %s\n" target-dir-str)
+            (util/info "working directory: %s\n"
+              (-> (Paths/get "." (make-array String 0))
+                 .toAbsolutePath .normalize .toString))
 
-         (when show
-           (util/info "parse options: %s\n" *opts*))
+           (when show
+             (util/info "parse options: %s\n" *opts*))
 
-         (let [lexer-inst (ANTLRv4Lexer. nil)
-               parser-inst (ANTLRv4Parser. nil)
-               char-set (Charset/defaultCharset)
-               target-file-fn identity]
+           (let [lexer-inst (ANTLRv4Lexer. nil)
+                 parser-inst (ANTLRv4Parser. nil)
+                 char-set (Charset/defaultCharset)
+                 target-file-fn
+                  (fn [file-path]
+                    (apply io/file target-dir
+                      (fs/split file-path)))]
 
-           (anltr/parse-file lexer-inst parser-inst char-set
-              start-rule input target-file-fn
-              {:encoding encoding :show show :tokens tokens
-                :lisp tree :edn edn :rdf rdf :postscript postscript
-                :trace trace :diagnostics diagnostics :sll sll}))
+             (antlr/parse-file lexer-inst parser-inst char-set
+                start-rule input target-file-fn
+                {:encoding encoding :show show :tokens tokens
+                  :lisp tree :edn edn :rdf rdf :postscript postscript
+                  :trace trace :diagnostics diagnostics :sll sll}))
 
-            ;; prepare fileset and call next-handler
-         (let [fileset' (-> fileset
-                             (boot/add-asset target-dir)
-                             boot/commit!)
-               result (next-handler fileset')]
-           ;; post processing
-           ;; the goal here is to perform any side effects
-           result)))))
+              ;; prepare fileset and call next-handler
+           (let [fileset' (-> fileset
+                               (boot/add-asset target-dir)
+                               boot/commit!)
+                 result (next-handler fileset')]
+             ;; post processing
+             ;; the goal here is to perform any side effects
+             result))))))

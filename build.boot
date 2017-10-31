@@ -1,6 +1,7 @@
+;; A project to provide an Antlr grammar parser
 
 (def project 'babeloff/boot-antlr4-parser)
-(def version "2017.10.20-SNAPSHOT")
+(def version "2017.10.31")
 
 (set-env!
     :source-paths #{"src/antlr4" "src/java"}
@@ -11,7 +12,7 @@
                     [adzerk/boot-test "RELEASE" :scope "test"]
                     [adzerk/bootlaces "0.1.13" :scope "test"]
 
-                    [babeloff/boot-antlr4 "2017.10.20-SNAPSHOT"]
+                    [babeloff/boot-antlr4 "2017.10.31"]
                     [org.antlr/antlr4 "4.7"]
                     [clj-jgit "0.8.10"]
                     [byte-streams "0.2.3"]
@@ -56,29 +57,32 @@
 (deftask construct
   [s show bool "show the arguments"]
   (comp
-    (antlr/antlr4 :grammar "ANTLRv4Lexer.g4"
-            :package "org.antlr.parser.antlr4"
-            :show true)
-    (antlr/antlr4 :grammar "ANTLRv4Parser.g4"
-            :package "org.antlr.parser.antlr4"
-            :show true)
+    (antlr/generate
+      :grammar "ANTLRv4Lexer.g4"
+      :package "org.antlr.parser.antlr4"
+      :show true)
+    (antlr/generate
+      :grammar "ANTLRv4Parser.g4"
+      :package "org.antlr.parser.antlr4"
+      :show true)
     (javac)))
 
 (deftask exercise
   [s show bool "show the arguments"]
   (s/check-asserts true)
   (comp
-    (antlr/test-rig :parser "org.antlr.parser.antlr4.ANTLRv4Parser"
-                    :lexer "org.antlr.parser.antlr4.ANTLRv4Lexer"
-                    :start-rule "literaryGrammarSpec"
-                    :input ["src/antlr4/ANTLRv4Lexer.g4"
-                            "src/antlr4/ANTLRv4Parser.g4"]
-                    :tree true
-                    :edn true
-                    :rdf :jena
-                    :postscript true
-                    :tokens true
-                    :show true)))
+    (antlr/exercise
+      :parser "org.antlr.parser.antlr4.ANTLRv4Parser"
+      :lexer "org.antlr.parser.antlr4.ANTLRv4Lexer"
+      :start-rule "grammarSpec"
+      :input ["src/antlr4/ANTLRv4Lexer.g4"
+              "src/antlr4/ANTLRv4Parser.g4"]
+      :tree true
+      :edn true
+      :rdf :jena
+      :postscript true
+      :tokens true
+      :show true)))
 
 (deftask my-repl
   []
