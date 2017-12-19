@@ -8,7 +8,7 @@
     :source-paths #{"src_antlr4" "src_java"}
     :resource-paths #{"resource_clj"}
     :dependencies '[[org.clojure/clojure "RELEASE"]
-                    [org.clojure/spec.alpha "0.1.134"]
+                    [org.clojure/spec.alpha "0.1.143"]
                     [boot/core "RELEASE" :scope "test"]
                     [adzerk/boot-test "RELEASE" :scope "test"]
                     [radicalzephyr/bootlaces "0.1.14" :scope "test"]
