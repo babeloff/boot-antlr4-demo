@@ -13,14 +13,14 @@
                     [adzerk/boot-test "RELEASE" :scope "test"]
                     [radicalzephyr/bootlaces "0.1.14" :scope "test"]
 
-                    [babeloff/boot-antlr4 "2017.10.31"]
+                    [babeloff/boot-antlr4 "2018.06.07-SNAPSHOT"]
                     [org.antlr/antlr4 "4.7"]
                     [clj-jgit "0.8.10"]
                     [byte-streams "0.2.3"]
                     [me.raynes/fs "1.4.6"]
 
-                    [org.apache.commons/commons-rdf-simple "0.3.0-incubating"]
-                    [org.apache.commons/commons-rdf-jena "0.3.0-incubating"]])
+                    [org.apache.commons/commons-rdf-simple "0.5.0"]
+                    [org.apache.commons/commons-rdf-jena "0.5.0"]])
 
 (task-options!
  pom {:project     project
